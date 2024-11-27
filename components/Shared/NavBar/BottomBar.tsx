@@ -25,7 +25,7 @@ const BottomBar = () => {
               )}
             >
               <item.icon className={cn("size-5 ")} />
-              <p className={cn(" text-[11px] md:text-[16px]")}>{item.name}</p>
+              <p className={cn(" text-[11px] md:text-[16px]")}> {item.name}</p>
             </Link>
           );
         })}
