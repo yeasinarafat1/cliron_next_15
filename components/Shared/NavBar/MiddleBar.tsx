@@ -1,6 +1,9 @@
 import { auth, signOut } from "@/auth";
 import ProoductCartPopOver from "@/components/ProoductCartPopOver";
 import { Input } from "@/components/ui/input";
+import { client } from "@/sanity/lib/client";
+import { sanityFetch } from "@/sanity/lib/live";
+import { GET_PROFILE_PIC_URL_BY_EMAIL } from "@/sanity/lib/query";
 import { LogOutIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -8,6 +11,11 @@ import { AiFillHeart } from "react-icons/ai";
 
 const MiddleBar = async () => {
   const session = await auth();
+  let user;
+  const { data: userProfilePic } = await sanityFetch({
+    query: GET_PROFILE_PIC_URL_BY_EMAIL,
+    params: { email: session?.user?.email || "" },
+  });
 
   return (
     <div className="hidden bg-primary w-full h-[75px] md:flex items-center justify-around">
@@ -33,7 +41,7 @@ const MiddleBar = async () => {
           </Link>
           <Link href={"/dashboard"}>
             <Image
-              src={session.user?.image || "/asset/icons/user.svg"}
+              src={userProfilePic.image || "/asset/icons/user.svg"}
               alt="User icon"
               height={38}
               width={38}

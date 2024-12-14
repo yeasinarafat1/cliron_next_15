@@ -60,3 +60,9 @@ export const GET_ALL_CARD_BY_AUTHOR_ID = defineQuery(`
     cvc,
 }
 `);
+export const GET_PROFILE_PIC_URL_BY_EMAIL = defineQuery(`
+  *[_type == "user" && email == $email][0] {
+    _id,
+    image
+  }
+`);

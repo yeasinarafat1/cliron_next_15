@@ -115,3 +115,6 @@ body {
 .account-siderbar-shadow {
   box-shadow: 0px 8px 40px 0px rgba(0, 0, 0, 0.08);
 }
+.loading_gradient_bg {
+  background-image: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}

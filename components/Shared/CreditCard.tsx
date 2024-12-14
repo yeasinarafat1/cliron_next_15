@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import React from "react";
+import React, { useState } from "react";
 import { BsThreeDots } from "react-icons/bs";
 import {
   Popover,
@@ -10,13 +10,18 @@ import {
 
 import { Separator } from "../ui/separator";
 import { getLast4Digits } from "@/lib/utils";
+import { deleteCardById } from "@/lib/action";
+import { Button } from "../ui/button";
+
 interface CreditCardProps {
   type: "Visa" | "Master";
   card_number: number;
 
   username: string;
+  cardId: string;
 }
-const BankCard = ({ type, card_number, username }: CreditCardProps) => {
+
+const BankCard = ({ type, card_number, username, cardId }: CreditCardProps) => {
   return (
     <div className="flex flex-col">
       <div className="bank-card">
@@ -45,7 +50,7 @@ const BankCard = ({ type, card_number, username }: CreditCardProps) => {
               height={24}
               alt="pay"
             />
-            <TreeDotpopOver />
+            <TreeDotpopOver cardId={cardId} />
           </div>
 
           <Image
@@ -70,7 +75,18 @@ const BankCard = ({ type, card_number, username }: CreditCardProps) => {
 };
 
 export default BankCard;
-const TreeDotpopOver = () => {
+const TreeDotpopOver = ({ cardId }: { cardId: string }) => {
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const handleDeleteCard = async (cardId: string) => {
+    setDeleteLoading(true);
+    try {
+      await deleteCardById(cardId);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
   return (
     <Popover>
       <PopoverTrigger className=" z-20">
@@ -78,11 +94,24 @@ const TreeDotpopOver = () => {
       </PopoverTrigger>
       <PopoverContent
         side="bottom"
-        className="w-[80px] h-12 border border-[#E4E7E9] flex flex-col  items-center justify-center"
+        className="w-[80px] h-16 border border-[#E4E7E9] flex flex-col  items-center justify-center"
       >
-        <div className="flex-center gap-1 text-base">Edit</div>
+        <Button
+          variant={"ghost"}
+          className="flex-center gap-1 text-base w-full"
+        >
+          Edit
+        </Button>
         <Separator />
-        <div className="flex-center gap-1 text-base ">Delete</div>
+        <Button
+          variant={"ghost"}
+          className="flex-center gap-1 text-base "
+          onClick={() => {
+            handleDeleteCard(cardId);
+          }}
+        >
+          {deleteLoading ? "Deleting..." : "Delete"}
+        </Button>
       </PopoverContent>
     </Popover>
   );

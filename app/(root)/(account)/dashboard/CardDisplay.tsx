@@ -31,6 +31,7 @@ const CardDisplay = ({ session, cards }: { session?: any; cards: Card[] }) => {
               key={index}
               card_number={Number(card.number)}
               username={card.name || "PayPass"}
+              cardId={card._id}
               type="Master"
             />
           );

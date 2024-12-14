@@ -12,12 +12,10 @@ import { Form } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { SelectItem } from "@/components/ui/select";
 import CustomFormFeield from "@/components/Shared/CustomFormFeield";
-
-// Assuming these are imported from somewhere
 import { countries } from "@/constant";
 import { User } from "@/sanity/types";
-
-import { updateUser } from "@/lib/action";
+import { updateUser, uploadImage } from "@/lib/action";
+import { useToast } from "@/hooks/use-toast";
 
 const formSchema = z.object({
   fullname: z.string().min(5, {
@@ -52,26 +50,57 @@ export default function AccountDetailsForm({
       country: user?.country || "",
     },
   });
-
+  const { toast } = useToast();
   const [profilePic, setProfilePic] = useState<string>(
     user?.image || "/asset/DemoPic/profile.jpg"
   );
-  const [loading, setloading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [loading, setLoading] = useState(false);
   const profileInputRef = useRef<HTMLInputElement>(null);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    const { email, fullname, country, phonenumber, secenderyemail } = values;
-    const id = user?._id || "";
-    setloading(true);
-    await updateUser(id, fullname, secenderyemail, phonenumber, country);
-    setloading(false);
-    // Here you would typically send the form data to your backend
-    alert("Form submitted successfully!");
+    try {
+      setLoading(true);
+      const { email, fullname, country, phonenumber, secenderyemail } = values;
+      const id = user?._id || "";
+      console.log(selectedFile);
+
+      let imageUrl;
+      if (selectedFile) {
+        imageUrl = await uploadImage(selectedFile);
+      }
+      if (!imageUrl) {
+        imageUrl = user?.image || "/asset/DemoPic/profile.jpg";
+      }
+      await updateUser(
+        id,
+        fullname,
+        secenderyemail,
+        phonenumber,
+        country,
+        imageUrl
+      );
+
+      toast({
+        title: "Success",
+        description: "Profile updated successfully",
+      });
+    } catch (error) {
+      console.error(error);
+      toast({
+        title: "Error",
+        description: "Failed to update profile",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   }
 
   const handleProfilePicChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setSelectedFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
         setProfilePic(reader.result as string);
@@ -172,7 +201,7 @@ export default function AccountDetailsForm({
               className="bg-secondary hover:bg-orange-500 px-5 py-2 flex-center gap-2"
               disabled={loading}
             >
-              {loading ? "saving" : "Save Changes"}
+              {loading ? "Saving..." : "Save Changes"}
             </Button>
           </div>
         </div>
